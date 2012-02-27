@@ -9,7 +9,7 @@ object FileEntry{
   def apply(filepath: String, mountPoint: String):FileEntry = {
     val fe = new FileEntry
     fe.file = new File(filepath)
-    fe.name = fe.file.getName
+    fe.filename = fe.file.getName
     fe.size = fe.file.length
     fe.isDirectory = fe.file.isDirectory
     fe.localModifiedTime = fe.file.lastModified
@@ -27,9 +27,10 @@ object FileEntry{
 class FileEntry {
   val log = Logger.getLogger(classOf[FileEntry])
   
+  var id: Long = _
   var fkey: String = _
-  var name: String = _
-  var checksum: String = _
+  var filename: String = _
+  var csum: String = _
   var localModifiedTime: Long = _
   var isDirectory: Boolean = _
   var size: Long = _
@@ -38,6 +39,7 @@ class FileEntry {
   var filepath: String = _
   var serverPath: String = _
   var mountPoint: String = _
+  var deleted = false
   
   def normalized = {
     if (serverPath == null && file != null && file.exists){
@@ -67,7 +69,7 @@ class FileEntry {
   }
   def exists = (filepath != null) && (file != null) && (file.exists)
   
-  override def toString = "[%s][%-6s] %s %s".format(fkey, if (checksum == null) "local" else "synced", if (isDirectory) "D" else "F", serverPath)
+  override def toString = "[%s][%-6s] %s %s".format(fkey, if (csum == null) "local" else "synced", if (isDirectory) "D" else "F", serverPath)
   
   
   

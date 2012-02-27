@@ -26,7 +26,7 @@ class LocalChangesWorker(localQueue: Queue[File]) extends Thread{
 //         }
         
         if (result.status == FileEntryStatus.New){
-          result.fileEntry.checksum = "HARDCODED"
+          result.fileEntry.csum = "HARDCODED"
           CurrentDatabase.save(result.fileEntry)
           
         }

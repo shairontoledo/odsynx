@@ -24,23 +24,23 @@ object FileEntryStatus extends Enumeration{
     }
     
     //file has been removed
-    if (physicalEntry == null &&  dbEntry != null && dbEntry.checksum != null){
+    if (physicalEntry == null &&  dbEntry != null && dbEntry.csum != null){
       return FilEntryStatusResult(dbEntry,FileEntryStatus.Removed)
     }
     
     if (physicalEntry != null && physicalEntry.exists && dbEntry != null){
       //synced
-      if (physicalEntry.localModifiedTime == dbEntry.localModifiedTime && physicalEntry.size == dbEntry.size && dbEntry.checksum != null){
+      if (physicalEntry.localModifiedTime == dbEntry.localModifiedTime && physicalEntry.size == dbEntry.size && dbEntry.csum != null){
         return FilEntryStatusResult(dbEntry,FileEntryStatus.Synced)
       }
       
       //New but still not synced, if true, duplicate action
-      if (physicalEntry.localModifiedTime == dbEntry.localModifiedTime && physicalEntry.size == dbEntry.size && dbEntry.checksum == null){
+      if (physicalEntry.localModifiedTime == dbEntry.localModifiedTime && physicalEntry.size == dbEntry.size && dbEntry.csum == null){
         return FilEntryStatusResult(dbEntry,FileEntryStatus.New)
       }
       
       //New but has been changed before sync
-      if ( (physicalEntry.localModifiedTime != dbEntry.localModifiedTime || physicalEntry.size != dbEntry.size) && dbEntry.checksum == null){
+      if ( (physicalEntry.localModifiedTime != dbEntry.localModifiedTime || physicalEntry.size != dbEntry.size) && dbEntry.csum == null){
         dbEntry.localModifiedTime = physicalEntry.localModifiedTime
         dbEntry.size = physicalEntry.size
         CurrentDatabase.save(dbEntry)
@@ -48,10 +48,10 @@ object FileEntryStatus extends Enumeration{
       }
       //File has been changed
       if ( !physicalEntry.file.isDirectory && 
-          (physicalEntry.localModifiedTime != dbEntry.localModifiedTime || physicalEntry.size != dbEntry.size ) && dbEntry.checksum != null ){
+          (physicalEntry.localModifiedTime != dbEntry.localModifiedTime || physicalEntry.size != dbEntry.size ) && dbEntry.csum != null ){
         dbEntry.localModifiedTime = physicalEntry.localModifiedTime
         dbEntry.size = dbEntry.size
-        return FilEntryStatusResult(dbEntry, if (dbEntry.checksum == null) FileEntryStatus.New else FileEntryStatus.Changed )
+        return FilEntryStatusResult(dbEntry, if (dbEntry.csum == null) FileEntryStatus.New else FileEntryStatus.Changed )
         
       }
       

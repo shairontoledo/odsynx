@@ -20,7 +20,7 @@ class FileEntryTest extends  SpecificationWithJUnit {
     }
 
     "have correct name as is(dont low case it)" in {
-      fe.name must beEqualTo("Root.html")
+      fe.filename must beEqualTo("Root.html")
     }
   
     "have correct parentPath(relative)" in {
@@ -52,7 +52,7 @@ class FileEntryTest extends  SpecificationWithJUnit {
     }
 
     "have correct name as is(dont low case it)" in {
-      fe.name must beEqualTo("Doc")
+      fe.filename must beEqualTo("Doc")
     }
   
     "have correct parentPath(relative)" in {

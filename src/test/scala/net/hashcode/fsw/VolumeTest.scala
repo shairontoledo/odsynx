@@ -15,7 +15,7 @@ class VolumeTest extends SpecificationWithJUnit{
       (dir.exists && dir.isDirectory) must beEqualTo(true)
       FileUtils.copyDirectory(new File("src/test/resources/doc"), new File(dir, "doc"))
       new File(dir,"doc").exists must beEqualTo(true)
-      Volume.init("Test volume", dir.getAbsolutePath)
+      Volume.init("Test volume", dir.getAbsolutePath,false)
     }
     "create config dir" in {
       Volume.configDir must notBe(null)

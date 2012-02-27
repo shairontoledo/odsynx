@@ -71,12 +71,13 @@ object LuceneAsDatabase extends LocalDatabase{
   
   def luceneDocument(fe: FileEntry): Document = {
     val doc = new Document();
-
+    
+//    doc.add(new NumericField("id", Store.YES,true).setLongValue(fe.id));
     doc.add(new Field("server_path", fe.serverPath, Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
     doc.add(new Field("parent_path", fe.parentPath, Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
-    doc.add(new Field("name", fe.name, Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
-    if (fe.checksum != null)
-      doc.add(new Field("checksum", fe.checksum+"", Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
+    doc.add(new Field("filename", fe.filename, Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
+    if (fe.csum != null)
+      doc.add(new Field("csum", fe.csum+"", Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
     doc.add(new Field("local_modified_time", fe.localModifiedTime + "", Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
     doc.add(new Field("is_directory", fe.isDirectory+"", Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
     doc.add(new Field("fkey", fe.fkey, Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
@@ -88,10 +89,12 @@ object LuceneAsDatabase extends LocalDatabase{
   
   def asFileEntry(doc: Document): FileEntry ={
     val fe = new FileEntry
+//    if (doc.get("id") != null )
+//    fe.id = doc.get("id").toLong
     fe.serverPath = doc.get("server_path")
     fe.parentPath = doc.get("parent_path")
-    fe.name = doc.get("name")
-    fe.checksum = doc.get("checksum")
+    fe.filename = doc.get("filename")
+    fe.csum = doc.get("csum")
     fe.localModifiedTime = doc.get("local_modified_time").toLong
     fe.isDirectory = doc.get("is_directory").toBoolean
     fe.fkey = doc.get("fkey")

@@ -19,7 +19,7 @@ object Volume{
   val RemoteChangesQueue = mutable.Queue[FileEntry]()
   val fam = new FilesystemAlterationMonitor
   val localWorker = new LocalChangesWorker(LocalChangesQueue)
-  def init(volName: String, volPath: String) {
+  def init(volName: String, volPath: String, initWorkers:Boolean=true) {
     log.info("Initializing [%s]:%s".format(volName, volPath))
     Volume.name = volName
     Volume.mountPoint = volPath
@@ -27,16 +27,17 @@ object Volume{
     log.debug("Config %s dir exists %s".format(Volume.configDir, new File(Volume.configDir).mkdir))
     CurrentDatabase.init
     
-    fam.addListener(new File(mountPoint), MrWatcher(LocalChangesQueue));
-    log.info("Started")
-    localWorker.start
+    if (initWorkers){
+      fam.addListener(new File(mountPoint), MrWatcher(LocalChangesQueue));
+      log.info("Started")
+      localWorker.start
     
-    fam.start
+      fam.start
+    }
     
     
     
     
-    //CurrentDatabase.init(mountPoint)
   }
   
   //def init = apply(_,_)

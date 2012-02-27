@@ -1,7 +1,7 @@
 {
     "files": [
         {
-            "size": "0",
+            "size": "10",
             "is_directory": "true",
             "fkey": "6f3c28b0531655e67b231ae037b458dc",
             "id": "128423",
@@ -9,6 +9,16 @@
             "parent_path": "/",
             "filename": "Inbox",
             "file_updated_time": "0"
+        },
+        {
+            "size": "40",
+            "is_directory": "false",
+            "fkey": "aasdasdasdasd",
+            "id": "128423",
+            "deleted": "true",
+            "parent_path": "/foobar",
+            "filename": "document.docx",
+            "file_updated_time": "2341"
         }
     ],
     "revision": "852c0f2ba4c7802a6e63c2c02d80c4b8"

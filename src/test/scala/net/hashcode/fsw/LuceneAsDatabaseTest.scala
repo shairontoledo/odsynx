@@ -17,7 +17,7 @@ class LuceneAsDatabaseTest extends SpecificationWithJUnit{
       (dir.exists && dir.isDirectory) must beEqualTo(true)
       FileUtils.copyDirectory(new File("src/test/resources/doc"), new File(dir, "doc"))
       new File(dir,"doc").exists must beEqualTo(true)
-      Volume.init("Test volume444", dir.getAbsolutePath)
+      Volume.init("Test volume444", dir.getAbsolutePath,false)
     }
     "create the base dir" in {
       //CurrentDatabase.init
@@ -46,7 +46,7 @@ class LuceneAsDatabaseTest extends SpecificationWithJUnit{
       fe2 must notBeNull
       fe2.fkey must beEqualTo(fkey)
       fe2.isDirectory must be(false)
-      fe2.name must beEqualTo("file root.html")
+      fe2.filename must beEqualTo("file root.html")
       fe2.serverPath must beEqualTo("/doc/file root.html")
       fe2.localModifiedTime must notBe(0L)
       

@@ -17,7 +17,7 @@ class FileEntryStatusTest extends SpecificationWithJUnit{
       (dir.exists && dir.isDirectory) must beEqualTo(true)
       FileUtils.copyDirectory(new File("src/test/resources/doc"), new File(dir, "doc"))
       new File(dir,"doc").exists must beEqualTo(true)
-      Volume.init("Test volume2", dir.getAbsolutePath)
+      Volume.init("Test volume2", dir.getAbsolutePath, false)
       
     }
     
@@ -49,7 +49,7 @@ class FileEntryStatusTest extends SpecificationWithJUnit{
       f.exists must beEqualTo(true)
       val fe = FileEntry(f.getAbsolutePath, Volume.mountPoint)
       fe must notBeNull
-      fe.checksum = "yes it has" //mock checksum
+      fe.csum = "yes it has" //mock csum
       CurrentDatabase.save(fe)
       f.delete
       val fe2 = FileEntry(f.getAbsolutePath, Volume.mountPoint)
@@ -66,7 +66,7 @@ class FileEntryStatusTest extends SpecificationWithJUnit{
       f.exists must beEqualTo(true)
       val fe = FileEntry(f.getAbsolutePath, Volume.mountPoint)
       fe must notBeNull
-      fe.checksum = "yes it has" //mock checksum
+      fe.csum = "yes it has" //mock csum
       CurrentDatabase.save(fe)
      
       val fe2 = FileEntry(f.getAbsolutePath, Volume.mountPoint)
@@ -82,7 +82,7 @@ class FileEntryStatusTest extends SpecificationWithJUnit{
       f.exists must beEqualTo(true)
       val fe = FileEntry(f.getAbsolutePath, Volume.mountPoint)
       fe must notBeNull
-      //fe.checksum = 
+      //fe.csum = 
       CurrentDatabase.save(fe)
 
       val fe2 = FileEntry(f.getAbsolutePath, Volume.mountPoint)
@@ -99,7 +99,7 @@ class FileEntryStatusTest extends SpecificationWithJUnit{
       f.exists must beEqualTo(true)
       val fe = FileEntry(f.getAbsolutePath, Volume.mountPoint)
       fe must notBeNull
-      //fe.checksum = "yes it has" //mock checksum
+      //fe.csum = "yes it has" //mock csum
       CurrentDatabase.save(fe)
       Thread.sleep(300)
       FileUtils.touch(f)
@@ -118,7 +118,7 @@ class FileEntryStatusTest extends SpecificationWithJUnit{
       f.exists must beEqualTo(true)
       val fe = FileEntry(f.getAbsolutePath, Volume.mountPoint)
       fe must notBeNull
-      fe.checksum = "yes it has" //mock checksum
+      fe.csum = "yes it has" //mock csum
       CurrentDatabase.save(fe)
       Thread.sleep(300)
       FileUtils.touch(f)

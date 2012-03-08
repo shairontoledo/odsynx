@@ -124,13 +124,27 @@
 				</plugins>
 		</build>
 		<dependencies>
-
+				<dependency>
+						<groupId>org.clapper</groupId>
+						<artifactId>argot_2.9.0</artifactId>
+						<version>0.3.5</version>
+				</dependency>
+				<dependency> 
+<groupId>org.scala-lang</groupId> 
+<artifactId>jline</artifactId> 
+<version>2.9.0-1</version> 
+</dependency> 
 				<dependency>
 						<groupId>org.apache.httpcomponents</groupId>
 						<artifactId>httpmime</artifactId>
 						<version>4.1.2</version>
 				</dependency>
-				
+				<dependency>
+						<groupId>org.ini4j</groupId>
+						<artifactId>ini4j</artifactId>
+						<version>0.5.2</version>
+				</dependency>
+            		
 				<dependency>
 						<groupId>org.apache.httpcomponents</groupId>
 						<artifactId>httpclient</artifactId>

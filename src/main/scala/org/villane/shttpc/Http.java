@@ -13,6 +13,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
+import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.entity.mime.FormBodyPart;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -20,6 +21,8 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.SchemeRegistryFactory;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.helpers.MessageFormatter;
 
@@ -44,7 +47,7 @@ public class Http {
 		}
 
 		public Http() {
-				this.client = new DefaultHttpClient();
+				this.client = new DefaultHttpClient( new ThreadSafeClientConnManager(SchemeRegistryFactory.createDefault()));
 				//HttpHost proxy = new HttpHost("127.0.0.1", 8888, "http");
 				//this.client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
 		}
@@ -132,6 +135,7 @@ public class Http {
 
 		public SimpleHttpResponse delete(String uri) throws ClientProtocolException, IOException {
 				HttpDelete del = new HttpDelete(uri);
+				del.setHeader("X-OfficeDrop-Replica", Hostname);
 				return new SimpleHttpResponse(client.execute(del));
 		}
 

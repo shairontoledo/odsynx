@@ -11,7 +11,7 @@ object MrWatcher{
   def allows(file:File):Boolean = {
     var relative = FileEntry.relativePath(file.getAbsolutePath, Volume.mountPoint)
     
-    return (!file.isHidden && (!relative.trim.matches("^/*\\.odsync.*")))
+    return (!file.isHidden && (!relative.trim.matches("^/*\\.odx.*")))
             
   }
 }

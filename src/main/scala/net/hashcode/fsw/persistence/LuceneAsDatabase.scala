@@ -19,52 +19,84 @@ object LuceneAsDatabase extends LocalDatabase{
   val log = Logger.getLogger(classOf[LocalDatabase])
   
   override def retrive(fkey: String) = findBy("fkey", fkey)
+  override def findChildren(parentPath: String, op:FileEntry => Unit) = {
+				
+				log.debug("Finding children of %s".format(parentPath))	
+    withSearcher( is => for (scoredoc <- is.search(luceneQuery("parent_path",parentPath), 1000000).scoreDocs){
+								val fe = asFileEntry(is.doc(scoredoc.doc))
+								log.debug("Found child [%s] of  [%s]".format(fe,parentPath))
+								op(fe)
+						} 
+    )
+		}
   override def find(serverPath: String) = findBy("server_path", serverPath)
 
   def findBy(field:String, fieldValue:String): FileEntry = {
-    withSearcher( is => for (scoredoc <- is.search(luceneQuery(field,fieldValue), 10).scoreDocs if is.doc(scoredoc.doc).get(field) == fieldValue) 
-      return asFileEntry(is.doc(scoredoc.doc))
+				log.debug("Finding by %s = %s".format(field, fieldValue))
+						
+    withSearcher( is => for (scoredoc <- is.search(luceneQuery(field,fieldValue), 10).scoreDocs if is.doc(scoredoc.doc).get(field) == fieldValue){
+								val fe = asFileEntry(is.doc(scoredoc.doc))
+								log.debug("Found [%s] by %s = %s".format(fe, field, fieldValue))
+								return fe
+								
+						} 
     )
     return null
   }
   
   
+  override def remove(fileEntry: FileEntry) = withIndexer(removeDoc(_,fileEntry) )
   override def save(fileEntries: List[FileEntry]) = withIndexer( indexer => fileEntries.foreach( saveOrReplace(indexer, _)))
 
-  override def save(fileEntry: FileEntry) = withIndexer(saveOrReplace(_,fileEntry) )
+  override def save(fileEntry: FileEntry) = {
+				//It need close indexer before save other entry
+				withIndexer(removeDoc(_,fileEntry))
+				withIndexer(saveOrReplace(_,fileEntry) )
+		}
   
   def luceneQuery = new QueryParser(Version.LUCENE_29, (_:String), new KeywordAnalyzer()).parse( (_:String))
   
   def withSearcher(idx: IndexSearcher => Unit){
     val is = new IndexSearcher(LuceneAsDatabase.directory);
-    synchronized{
-      try{
-        idx(is)
-      }finally{
-        is.close
-      }
-    }
+				try{
+						idx(is)
+				}finally{
+						is.close
+				}
+    
   }
   
   def withIndexer(idx: IndexWriter => Unit){
     val dirExists = new File(IndexDir).exists
     val writer = new IndexWriter( directory, new KeywordAnalyzer(),!dirExists, IndexWriter.MaxFieldLength.LIMITED)
-    try{
-      idx(writer)
-    }
-    finally{
-      writer.commit
-      writer.close
-    }
+    synchronized{
+						try{
+								idx(writer)
+						}
+						finally{
+								writer.commit
+								writer.optimize
+								writer.close
+						}
+				}
   }
 
   def saveOrReplace(indexer:IndexWriter, fe: FileEntry): Unit = {
     if (fe == null) return 
-    log.debug("%s Saving ".format(fe))
-    indexer.deleteDocuments(luceneQuery("fkey",fe.fkey))
+    log.debug("%s Saving ".format(fe.toStringDebug))
+    //indexer.deleteDocuments(luceneQuery("fkey",fe.fkey))
+				removeDoc(_,_)
     indexer.addDocument(luceneDocument(fe))
-    log.debug("%s Saved".format(fe))
+    log.debug("%s Saved".format(fe.toStringDebug))
     
+  }
+  
+		def removeDoc(indexer:IndexWriter, fe: FileEntry): Unit = {
+    if (fe == null) return 
+				log.debug("Deleting"+ fe)
+    indexer.deleteDocuments(luceneQuery("fkey",fe.fkey))
+				indexer.expungeDeletes(true)
+				
   }
   
   def directory = FSDirectory.open(new File(IndexDir))
@@ -72,9 +104,10 @@ object LuceneAsDatabase extends LocalDatabase{
   def luceneDocument(fe: FileEntry): Document = {
     val doc = new Document();
     
-//    doc.add(new NumericField("id", Store.YES,true).setLongValue(fe.id));
+
     doc.add(new Field("server_path", fe.serverPath, Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
-    doc.add(new Field("parent_path", fe.parentPath, Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
+				if (fe.parentPath != null)
+						doc.add(new Field("parent_path", fe.parentPath, Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
     doc.add(new Field("filename", fe.filename, Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
     if (fe.csum != null)
       doc.add(new Field("csum", fe.csum+"", Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
@@ -82,11 +115,31 @@ object LuceneAsDatabase extends LocalDatabase{
     doc.add(new Field("is_directory", fe.isDirectory+"", Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
     doc.add(new Field("fkey", fe.fkey, Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
     doc.add(new Field("size", fe.size+"", Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
+    doc.add(new Field("absolutePath", fe.filepath+"", Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
 
     doc
     
   }
-  
+  def	fetchAll(op:FileEntry => Unit) {
+				
+				withSearcher(
+						searcher =>{
+								log.debug("max docs: "+searcher.maxDoc)
+								for (i<- 0 to searcher.maxDoc-1){
+										val doc = searcher.doc(i)
+										if ( doc != null){
+												val fe = asFileEntry(doc)
+												log.debug(fe+" - Found")
+												op(fe)
+										}
+								}
+								
+						}
+				)
+						
+				
+		}
+		
   def asFileEntry(doc: Document): FileEntry ={
     val fe = new FileEntry
 //    if (doc.get("id") != null )
@@ -99,6 +152,8 @@ object LuceneAsDatabase extends LocalDatabase{
     fe.isDirectory = doc.get("is_directory").toBoolean
     fe.fkey = doc.get("fkey")
     fe.size = doc.get("size").toLong
+				fe.file = new File(doc.get("absolutePath"))
+				fe.filepath = doc.get("absolutePath")
     fe
     
   }

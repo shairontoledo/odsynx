@@ -42,6 +42,8 @@ class RemoteChanges(responseBody:String){
     fe.parentPath = map.getOrElse("parent_path","/").asInstanceOf[String]
     fe.localModifiedTime = map.getOrElse("file_updated_time","0").toString.toLong
     fe.size = map.getOrElse("size","0").toString.toLong
+				val thepath = fe.parentPath+"/"+fe.filename.toLowerCase
+				fe.serverPath = FileEntry.fixedPath(thepath)
     fe
   }
   

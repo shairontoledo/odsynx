@@ -1,0 +1,9 @@
+[auth]
+		username = shairon
+		password = secreto
+		
+[remote]
+		folder = /Documents
+
+[log]
+  tty = true

@@ -7,6 +7,8 @@ which will monitor the specified directory or the current directory if not speci
 
 To use JNotify, You will need to have the appropriate shared library in your java.library.path
 Usage is very simple:
+ 
+
 
 // to add a watch : 
 String path = "/home/omry/tmp";

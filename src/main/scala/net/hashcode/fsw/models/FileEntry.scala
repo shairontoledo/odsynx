@@ -1,6 +1,7 @@
 package net.hashcode.fsw.models
 import java.io.File
 import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.io.FilenameUtils
 import org.apache.log4j.Logger
 
 
@@ -8,12 +9,12 @@ object FileEntry{
   
   def apply(filepath: String, mountPoint: String):FileEntry = {
     val fe = new FileEntry
-    fe.file = new File(filepath)
+    fe.file = new File(fixedPath(filepath))
     fe.filename = fe.file.getName
     fe.size = fe.file.length
     fe.isDirectory = fe.file.isDirectory
     fe.localModifiedTime = fe.file.lastModified
-    fe.filepath = filepath
+    fe.filepath = fe.file.getAbsolutePath
     fe.mountPoint = mountPoint.toLowerCase
     fe.normalized
     
@@ -21,7 +22,15 @@ object FileEntry{
     fe
   }
 
-   def relativePath = (_:String).replace((_:String), "").toLowerCase
+		def relativePath = (_:String).replace((_:String), "").toLowerCase
+		def	generateFKey = DigestUtils.md5Hex(_:String)
+  def	fkeyForRelativePath(path:String, mountPath:String) = generateFKey(relativePath(path,mountPath))
+		def fixedPath(path: String): String = {
+    if (path == null || path == "") return "/"
+    
+				return FilenameUtils.normalize(path.split("/").filter(_ != "").mkString("/","/","")).toLowerCase
+    //return 
+  }
 }
 
 class FileEntry {
@@ -47,30 +56,27 @@ class FileEntry {
       parentPath = file.getParent.toLowerCase.replace(mountPoint, "") 
     }
     
-    serverPath = fixedPath(serverPath).toLowerCase
-    parentPath = fixedPath(parentPath).toLowerCase
-    
+    serverPath = FileEntry.fixedPath(serverPath).toLowerCase
+    parentPath = FileEntry.fixedPath(parentPath).toLowerCase
+    if (filepath == null && file == null){
+						file = new File(FileEntry.fixedPath(mountPoint+serverPath)).getAbsoluteFile
+						filepath = file.getAbsolutePath
+				}
+				if (localModifiedTime != 0 && localModifiedTime.toString.length == 13)
+						localModifiedTime =  localModifiedTime/ 1000
+//				if (serverPath== "/")
+//						parentPath = null
+//						
     if (fkey == null)
-      fkey=DigestUtils.md5Hex(serverPath)
-    
+      fkey=FileEntry.generateFKey(serverPath)
   }
   
-  
-  
-  
-  def fixedPath(path: String): String = {
-    if (path == null || path == "") return "/"
-    
-    if (!path.startsWith("/"))
-      return "/"+path
-    
-    return path
-    
-  }
   def exists = (filepath != null) && (file != null) && (file.exists)
-  
-  override def toString = "[%s][%-6s] %s %s".format(fkey, if (csum == null) "local" else "synced", if (isDirectory) "D" else "F", serverPath)
-  
-  
-  
+  def	isEquals(that:FileEntry) = {
+				(that != null && this.size == that.size && this.localModifiedTime == that.localModifiedTime && this.serverPath == that.serverPath )		
+		}
+//  override def toString = "[%s][%-6s] %s %s".format(fkey, if (csum == null) "local" else "synced", if (isDirectory) "D" else "F", serverPath)
+  override def toString = "[%s] %s %s".format(fkey,  if (isDirectory) "D" else "F", serverPath)
+  def toStringDebug = "[%s] %s %s exists: %s size: %s time: %s csum: %s".format(fkey,  if (isDirectory) "D" else "F", serverPath,exists, size,localModifiedTime, csum)
+  def	isRoot = serverPath == "/"
 }

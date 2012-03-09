@@ -10,7 +10,6 @@ object MrWatcher{
   def apply(changesQueue: Queue[File]) = new MrWatcher(changesQueue)
   def allows(file:File):Boolean = {
     var relative = FileEntry.relativePath(file.getAbsolutePath, Volume.mountPoint)
-    
     return (!file.isHidden && (!relative.trim.matches("^/*\\.odx.*")))
             
   }
@@ -19,6 +18,9 @@ object MrWatcher{
 class MrWatcher(changesQueue: Queue[File]) extends FilesystemAlterationListener  {
   val log = Logger.getLogger(classOf[MrWatcher])
   val queue = changesQueue
+		
+		log.info("Filesystem Listener: Started")
+		
   override def onDirectoryChange(dir:File) = didChange(dir)
   override def onDirectoryCreate(dir:File) = didChange(dir)
   override def onDirectoryDelete(file:File) = didChange(file)
@@ -36,5 +38,4 @@ class MrWatcher(changesQueue: Queue[File]) extends FilesystemAlterationListener 
       queue += file
     }
   }
-
 }

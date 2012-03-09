@@ -1,8 +1,6 @@
-
 package net.hashcode.fsw.models
 
-
-import net.hashcode.fsw.persistence.CurrentDatabase
+import net.hashcode.fsw.persistence._
 import org.apache.log4j.Logger
 
 object FileEntryStatus extends Enumeration{
@@ -55,7 +53,7 @@ object FileEntryStatus extends Enumeration{
         if (updateEntry){
 										dbEntry.localModifiedTime = localEntry.localModifiedTime
 										dbEntry.size = localEntry.size
-										CurrentDatabase.save(dbEntry)
+										save(dbEntry)
 								}
         return FileEntryStatusResult(dbEntry,FileEntryStatus.New)
       }
@@ -63,25 +61,21 @@ object FileEntryStatus extends Enumeration{
       if ( !localEntry.file.isDirectory && 
           (localEntry.localModifiedTime != dbEntry.localModifiedTime || localEntry.size != dbEntry.size ) && dbEntry.csum != null ){
 								log.debug("CHANGED \nPH{ %s } \nDB{ %s }".format(localEntry.toStringDebug, dbEntry.toStringDebug))
-        return FileEntryStatusResult(localEntry, if (dbEntry.csum == null) FileEntryStatus.New else FileEntryStatus.Changed )
-        
+        return FileEntryStatusResult(localEntry, if (dbEntry.csum == null) FileEntryStatus.New else FileEntryStatus.Changed ) 
       }
-      
     }
-    FileEntryStatusResult(null,null)
-				
+    FileEntryStatusResult(null,null)		
 		}
+		
   def apply(path: String, mountPoint:String): FileEntryStatusResult = {
     val localEntry = FileEntry(path, mountPoint)
     val dbEntry = if (localEntry != null) 
-      CurrentDatabase.retrive(localEntry.fkey)
+      retrive(localEntry.fkey)
     else {		
-      CurrentDatabase.retrive(FileEntry.fkeyForRelativePath(path, mountPoint))
+      retrive(FileEntry.fkeyForRelativePath(path, mountPoint))
     }
-				compare(localEntry, dbEntry, true)
-				
+				compare(localEntry, dbEntry, true)	
   }
-
 }
 
 

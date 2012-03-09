@@ -9,6 +9,8 @@ package object persistence {
 		def	find = CurrentDatabase.find(_)
 		def	remove = CurrentDatabase.remove(_)
 		def	findChildren = CurrentDatabase.findChildren(_, _)
+		def	loadRevision = CurrentDatabase.loadRevision
+		def	saveRevision = CurrentDatabase.saveRevision(_)
 }
 
 

@@ -9,8 +9,9 @@ object FileEntry{
   
   def apply(filepath: String, mountPoint: String):FileEntry = {
     val fe = new FileEntry
-    fe.file = new File(fixedPath(filepath))
-    fe.filename = fe.file.getName
+    fe.file = new File(fixedPath(new File(filepath).getAbsolutePath))
+				
+    fe.filename = FilenameUtils.getName(filepath)
     fe.size = fe.file.length
     fe.isDirectory = fe.file.isDirectory
     fe.localModifiedTime = fe.file.lastModified
@@ -28,8 +29,7 @@ object FileEntry{
 		def fixedPath(path: String): String = {
     if (path == null || path == "") return "/"
     
-				return FilenameUtils.normalize(path.split("/").filter(_ != "").mkString("/","/","")).toLowerCase
-    //return 
+				return FilenameUtils.normalize(path.split("/").filter(_ != "").mkString("/","/",""))
   }
 }
 
@@ -62,20 +62,18 @@ class FileEntry {
 						file = new File(FileEntry.fixedPath(mountPoint+serverPath)).getAbsoluteFile
 						filepath = file.getAbsolutePath
 				}
-				if (localModifiedTime != 0 && localModifiedTime.toString.length == 13)
-						localModifiedTime =  localModifiedTime/ 1000
-//				if (serverPath== "/")
-//						parentPath = null
-//						
-    if (fkey == null)
-      fkey=FileEntry.generateFKey(serverPath)
+				if (localModifiedTime != 0 && localModifiedTime.toString.length == 13) localModifiedTime =  localModifiedTime/ 1000
+						
+    if (fkey == null) fkey=FileEntry.generateFKey(serverPath)
+      
   }
   
   def exists = (filepath != null) && (file != null) && (file.exists)
-  def	isEquals(that:FileEntry) = {
+  
+		def	isEquals(that:FileEntry) = 
 				(that != null && this.size == that.size && this.localModifiedTime == that.localModifiedTime && this.serverPath == that.serverPath )		
-		}
-//  override def toString = "[%s][%-6s] %s %s".format(fkey, if (csum == null) "local" else "synced", if (isDirectory) "D" else "F", serverPath)
+		
+
   override def toString = "[%s] %s %s".format(fkey,  if (isDirectory) "D" else "F", serverPath)
   def toStringDebug = "[%s] %s %s exists: %s size: %s time: %s csum: %s".format(fkey,  if (isDirectory) "D" else "F", serverPath,exists, size,localModifiedTime, csum)
   def	isRoot = serverPath == "/"

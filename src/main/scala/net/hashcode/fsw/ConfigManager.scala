@@ -51,9 +51,7 @@ object ConfigManager {
 				}
 				store
 		}
-		
-		//def	load(path:String):Config = load(new Config(path))
-		
+
 		def	load = {
 				
 				val ini = new Wini(configuration.configFile);
@@ -62,20 +60,18 @@ object ConfigManager {
 				configuration.email = ini.get("auth","email")
 				configuration.server = ini.get("remote","server")
 				if (configuration.server == null || configuration.server == "")
-						configuration.server = "https://officedrop.com"
+						configuration.server = "https://www.officedropdev.com"
 				configuration.remoteFolder = ini.get("remote","folder")
 				if (configuration.remoteFolder == null || configuration.remoteFolder == ""){
 						configuration.remoteFolder = "/"+configuration.dir.getAbsoluteFile.getParentFile.getName
 				}else{
 						if (!configuration.remoteFolder.startsWith("/")){
 								configuration.remoteFolder = "/"+configuration.remoteFolder
-						}
-				
+						}				
 						if (ini.get("log","tty") != null && ini.get("log","tty") == "true") configuration.logtty = true
 				}
 				
 		}
-		
 		
 		def	initialize(path:String, force:Boolean = false):Config = {
 				configuration = new Config(path, force)
@@ -83,7 +79,6 @@ object ConfigManager {
 				store
 				configuration
 		}
-		
 }
 
 class Config(path:String, force:Boolean = false ) {

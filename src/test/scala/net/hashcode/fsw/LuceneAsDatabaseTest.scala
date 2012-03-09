@@ -92,6 +92,20 @@ class LuceneAsDatabaseTest extends SpecificationWithJUnit{
       
     }
     
+				"load a null revision" in {
+
+      CurrentDatabase.loadRevision must beNull
+    }
+				
+				"Save and load a revision" in {
+      val rev = "a80250ca9753cea7eb0becb4cc4a5c15"
+						
+      CurrentDatabase.saveRevision(rev) must beEqualTo(rev)
+      CurrentDatabase.loadRevision must beEqualTo(rev)
+      
+						
+    }
+				
     
   }
 }

@@ -12,6 +12,8 @@ trait LocalDatabase {
   def save(fileEntries: List[FileEntry])
   def remove(fileEntry: FileEntry)
   def fetchAll(op:FileEntry => Unit)
+		def	saveRevision(revision:String):String
+		def	loadRevision:String
   def init
 }
   

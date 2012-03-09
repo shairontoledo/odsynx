@@ -11,7 +11,20 @@ object Command {
 				
 		}
 		def	printUsage = {
-				println("RTFM "+System.getProperty("test"))
+				//TODO RTFM
+				println("""usage: odx <command> arg1 arg2
+
+    init                Create base configuration to sync current directory.
+    set  <key> <value>  Set configuration. It need two arguments.
+    signup              Sign up new user. I need auth.* values be set before signup
+    authenticate        Authenticate.
+    status              Get status of current directory.
+    pull                Get current revision from server and apply it locally.
+    push                Push all local changes to remote server.
+    push  <dir>         Push changes from a specific directory to remote server.
+    sync                Sync, pull and push command, it also cache current revision.
+    mount               Start sync as daemon. It will listen remote and local change and sync the system when needed.
+""")
 				if (System.getProperty("noAbort") == null){	
 						Runtime.getRuntime.exit(1)
 				}

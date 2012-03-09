@@ -40,7 +40,7 @@ object SHTTPTransport extends EntriesTransport{
 				this.username = username
 				this.password = password
 				this.email = email
-				this.server = new HttpHost(serverName, serverPort)
+				this.server = new HttpHost(serverName, serverPort,serverScheme)
 				
 		}
 		
@@ -60,6 +60,7 @@ object SHTTPTransport extends EntriesTransport{
 						setHttpClient
 						(true, null)
 				}else{
+						if (resp.asInputStream != null)
 						resp.asInputStream.close
 						log.error("[%s](status code: %s) Signing up username: %s email: %s".format(server, resp.statusCode, username, email))
 						(false, resp.asJackson.asInstanceOf[ArrayNode])
@@ -96,26 +97,35 @@ object SHTTPTransport extends EntriesTransport{
 						new UsernamePasswordCredentials(username, password)
 				)				
 				
+				
 				val authCache = new BasicAuthCache
 				val basicAuth = new BasicScheme
-				authCache.put(server, basicAuth);
+				authCache.put(server, basicAuth)
 
 				val localcontext = new BasicHttpContext
 				localcontext.setAttribute(ClientContext.AUTH_CACHE, authCache)
 		}
 		
 		def	basePathFor(resource:String) = {
-				"http://%s:%s/ze/api%s".format(server.getHostName, server.getPort, resource)
+				"%s://%s:%s/ze/api%s".format(serverScheme,server.getHostName, server.getPort, resource)
 		}
 		
   override def checkRevision(revision:String = null):RemoteChanges = {
+				setHttpClient
 				log.info("[%s] Checking revision %s".format(server,revision))
-				if (revision == null){
-						get("/revisions/checkout")
+				val resp = if (revision == null){
+						http.get(basePathFor("/revisions/checkout"))
 						
 				}else{
-						get("/revisions/%s/changes_since".format(revision))
+						http.get(basePathFor("/revisions/%s/changes_since".format(revision)))
 				}
+				if (resp.statusCode == 304){
+						//resp.asInputStream.close
+						val rc = new RemoteChanges(null)
+						rc.revision = revision
+						return rc
+				}
+				return new RemoteChanges(resp.asText)
 		}
 
 		def	get(resouce:String):RemoteChanges = new RemoteChanges(http.get(basePathFor(resouce)).asText)

@@ -1,9 +1,12 @@
 [auth]
-		username = shairon
-		password = secreto
-		
+username = shairon
+password = secreto
+email = 
+
 [remote]
-		folder = /Documents
+folder = /Documents
+server = https://officedrop.com
 
 [log]
-  tty = true
+tty = true
+

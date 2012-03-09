@@ -16,6 +16,13 @@
 				<scala.version>2.9.1</scala.version>
 		</properties>
 		<repositories>
+		
+      <repository>
+          <id>akathist-repository</id>
+          <name>Akathist Repository</name>
+          <url>http://www.9stmaryrd.com/maven</url>
+      </repository>
+  
 				<repository>
 						<id>scala-tools.org</id>
 						<name>Scala-tools Maven2 Repository</name>
@@ -43,15 +50,7 @@
 		<build>
 				<testSourceDirectory>src/test/scala</testSourceDirectory>
 				<sourceDirectory>src/main/scala</sourceDirectory>
-				<resources>
-						<resource>
-								<directory>lib</directory>
-						</resource>
-						<resource>
-								<directory>src/main/resources</directory>
-						</resource>
-				</resources>
-      
+				  
 				<plugins>
 						<plugin>
 								<artifactId>maven-assembly-plugin</artifactId>
@@ -124,11 +123,6 @@
 				</plugins>
 		</build>
 		<dependencies>
-				<dependency>
-						<groupId>org.clapper</groupId>
-						<artifactId>argot_2.9.0</artifactId>
-						<version>0.3.5</version>
-				</dependency>
 				<dependency> 
 <groupId>org.scala-lang</groupId> 
 <artifactId>jline</artifactId> 
@@ -189,6 +183,16 @@
 						<groupId>net.liftweb</groupId>
 						<artifactId>lift-json_2.9.1</artifactId>
 						<version>2.4</version>
+				  <exclusions>
+				    <exclusion>
+				      <artifactId>scala-compiler</artifactId>
+				      <groupId>org.scala-lang</groupId>
+				    </exclusion>
+				    <exclusion>
+				      <artifactId>scalap</artifactId>
+				      <groupId>org.scala-lang</groupId>
+				    </exclusion>
+				  </exclusions>
 				</dependency>
                     
 				<dependency>
@@ -206,6 +210,12 @@
 						<artifactId>specs_2.9.1</artifactId>
 						<version>1.6.9</version>
 						<scope>test</scope>
+				  <exclusions>
+				    <exclusion>
+				      <artifactId>scala-compiler</artifactId>
+				      <groupId>org.scala-lang</groupId>
+				    </exclusion>
+				  </exclusions>
 				</dependency>
 				<dependency>
 						<groupId>commons-codec</groupId>
@@ -217,11 +227,6 @@
       <artifactId>scala-library</artifactId>
       <version>2.9.0</version>
     </dependency>-->
-				<dependency>
-						<groupId>net.contentobjects.jnotify</groupId>
-						<artifactId>jnotify</artifactId>
-						<version>1.0</version>
-				</dependency>
 				<dependency>
 						<groupId>org.apache.lucene</groupId>
 						<artifactId>lucene-core</artifactId>

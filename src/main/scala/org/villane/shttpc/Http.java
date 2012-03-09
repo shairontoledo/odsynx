@@ -6,6 +6,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.http.HttpEntity;
@@ -13,7 +15,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
-import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.entity.mime.FormBodyPart;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -37,6 +38,7 @@ public class Http {
 		public static String DefaultURIEncoding = "UTF-8";
 		public static String Hostname;
 		public final DefaultHttpClient client;
+		public final Map<String, String> commonHeaders = new HashMap();
 
 		static {
 				try {
@@ -44,10 +46,13 @@ public class Http {
 				} catch (UnknownHostException e) {
 						Hostname = "Unknown";
 				}
+
 		}
 
 		public Http() {
-				this.client = new DefaultHttpClient( new ThreadSafeClientConnManager(SchemeRegistryFactory.createDefault()));
+				this.client = new DefaultHttpClient(new ThreadSafeClientConnManager(SchemeRegistryFactory.createDefault()));
+				commonHeaders.put("X-OfficeDrop-Replica", "odx-replica-"+Hostname);
+
 				//HttpHost proxy = new HttpHost("127.0.0.1", 8888, "http");
 				//this.client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
 		}
@@ -78,6 +83,7 @@ public class Http {
 										IOException {
 				return update(uri, postParams, "POST");
 		}
+
 		public SimpleHttpResponse post(String uri, Map<String, String> postParams, File file) throws ClientProtocolException,
 										IOException {
 				return update(uri, postParams, "POST", file);
@@ -87,7 +93,7 @@ public class Http {
 										IOException {
 				return update(uri, postParams, "PUT");
 		}
-		
+
 		public SimpleHttpResponse put(String uri, Map<String, String> postParams, File file) throws ClientProtocolException,
 										IOException {
 				return update(uri, postParams, "PUT", file);
@@ -97,7 +103,6 @@ public class Http {
 										IOException {
 				return update(uri, postParams, httpMethod, null);
 		}
-		
 
 		public SimpleHttpResponse update(String uri, Map<String, String> postParams, String httpMethod, File file) throws ClientProtocolException,
 										IOException {
@@ -105,7 +110,7 @@ public class Http {
 				if (httpMethod.equals("POST")) {
 
 						req = new HttpPost(uri);
-						req.setHeader("X-OfficeDrop-Replica", Hostname);
+						setHeaders(req);
 				} else {
 
 						req = new HttpPut(uri);
@@ -118,9 +123,9 @@ public class Http {
 						entity = mpEntity;
 						FormBodyPart fb = null;
 						for (Map.Entry<String, String> param : postParams.entrySet()) {
-								
-								mpEntity.addPart(param.getKey(), new StringBody(param.getValue(),"text/plain" ,Charset.forName(DefaultPostEncoding)));
-								
+
+								mpEntity.addPart(param.getKey(), new StringBody(param.getValue(), "text/plain", Charset.forName(DefaultPostEncoding)));
+
 						}
 				} else {
 						List<NameValuePair> paramsList = new ArrayList<NameValuePair>();
@@ -135,7 +140,8 @@ public class Http {
 
 		public SimpleHttpResponse delete(String uri) throws ClientProtocolException, IOException {
 				HttpDelete del = new HttpDelete(uri);
-				del.setHeader("X-OfficeDrop-Replica", Hostname);
+				//del.setHeader("X-OfficeDrop-Replica", Hostname);
+				setHeaders(del);
 				return new SimpleHttpResponse(client.execute(del));
 		}
 
@@ -160,6 +166,16 @@ public class Http {
 						return URLEncoder.encode(value, DefaultURIEncoding);
 				} catch (UnsupportedEncodingException e) {
 						return URLEncoder.encode(value);
+				}
+		}
+
+		private void setHeaders(HttpRequestBase req) {
+				Iterator it = commonHeaders.entrySet().iterator();
+				while (it.hasNext()) {
+						Map.Entry pairs = (Map.Entry) it.next();
+
+						req.setHeader(pairs.getKey().toString(), pairs.getKey().toString());
+						//"X-OfficeDrop-Replica"
 				}
 		}
 }

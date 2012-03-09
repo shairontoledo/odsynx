@@ -12,10 +12,10 @@ class LocalChangesWorker(localQueue: Queue[File], mountPath:String) extends Thre
   val log = Logger.getLogger(classOf[LocalChangesWorker])
   val mountPoint = mountPath
   def work = run
-    
+
   override def run = {
     log.info("Started for %s".format(mountPoint))
-    
+
     while(true){
       try{
         var entry:File = queue.dequeue
@@ -23,12 +23,12 @@ class LocalChangesWorker(localQueue: Queue[File], mountPath:String) extends Thre
 
       }catch{
         case ex: NoSuchElementException => Thread sleep 1000
-								case ex:Exception =>{
-												log.error("Unknown error "+ex)
-												if (log.isDebugEnabled) ex.printStackTrace
-								}
+        case ex:Exception =>{
+            log.error("Unknown error "+ex)
+            if (log.isDebugEnabled) ex.printStackTrace
+          }
       }
-      
+
     }
   }
 }

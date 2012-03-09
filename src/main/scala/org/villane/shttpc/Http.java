@@ -34,148 +34,148 @@ import org.slf4j.helpers.MessageFormatter;
  */
 public class Http {
 
-		public static String DefaultPostEncoding = "UTF-8";
-		public static String DefaultURIEncoding = "UTF-8";
-		public static String Hostname;
-		public final DefaultHttpClient client;
-		public final Map<String, String> commonHeaders = new HashMap();
+  public static String DefaultPostEncoding = "UTF-8";
+  public static String DefaultURIEncoding = "UTF-8";
+  public static String Hostname;
+  public final DefaultHttpClient client;
+  public final Map<String, String> commonHeaders = new HashMap();
 
-		static {
-				try {
-						Hostname = InetAddress.getLocalHost().getHostName();
-				} catch (UnknownHostException e) {
-						Hostname = "Unknown";
-				}
+  static {
+    try {
+      Hostname = InetAddress.getLocalHost().getHostName();
+    } catch (UnknownHostException e) {
+      Hostname = "Unknown";
+    }
 
-		}
+  }
 
-		public Http() {
-				this.client = new DefaultHttpClient(new ThreadSafeClientConnManager(SchemeRegistryFactory.createDefault()));
-				commonHeaders.put("X-OfficeDrop-Replica", "odx-replica-"+Hostname);
+  public Http() {
+    this.client = new DefaultHttpClient(new ThreadSafeClientConnManager(SchemeRegistryFactory.createDefault()));
+    commonHeaders.put("X-OfficeDrop-Replica", "odx-replica-" + Hostname);
 
-				//HttpHost proxy = new HttpHost("127.0.0.1", 8888, "http");
-				//this.client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-		}
+    //HttpHost proxy = new HttpHost("127.0.0.1", 8888, "http");
+    //this.client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+  }
 
-		public Http(DefaultHttpClient client) {
-				this.client = client;
-		}
+  public Http(DefaultHttpClient client) {
+    this.client = client;
+  }
 
-		public static Http newTrustingInstace() {
-				return new Http(new TrustingHttpClient());
-		}
+  public static Http newTrustingInstace() {
+    return new Http(new TrustingHttpClient());
+  }
 
-		public SimpleHttpResponse get(String uri) throws ClientProtocolException, IOException, URISyntaxException {
-				HttpGet get = new HttpGet(new URI(uri));
-				return new SimpleHttpResponse(client.execute(get));
-		}
+  public SimpleHttpResponse get(String uri) throws ClientProtocolException, IOException, URISyntaxException {
+    HttpGet get = new HttpGet(new URI(uri));
+    return new SimpleHttpResponse(client.execute(get));
+  }
 
-		public SimpleHttpResponse get(String uri, Object... params) throws ClientProtocolException, IOException, URISyntaxException {
-				return get(formatURI(uri, params));
-		}
+  public SimpleHttpResponse get(String uri, Object... params) throws ClientProtocolException, IOException, URISyntaxException {
+    return get(formatURI(uri, params));
+  }
 
-		public SimpleHttpResponse post(String uri, Object[] uriParams, Map<String, String> postParams)
-										throws ClientProtocolException, IOException {
-				return post(formatURI(uri, uriParams), postParams);
-		}
+  public SimpleHttpResponse post(String uri, Object[] uriParams, Map<String, String> postParams)
+          throws ClientProtocolException, IOException {
+    return post(formatURI(uri, uriParams), postParams);
+  }
 
-		public SimpleHttpResponse post(String uri, Map<String, String> postParams) throws ClientProtocolException,
-										IOException {
-				return update(uri, postParams, "POST");
-		}
+  public SimpleHttpResponse post(String uri, Map<String, String> postParams) throws ClientProtocolException,
+          IOException {
+    return update(uri, postParams, "POST");
+  }
 
-		public SimpleHttpResponse post(String uri, Map<String, String> postParams, File file) throws ClientProtocolException,
-										IOException {
-				return update(uri, postParams, "POST", file);
-		}
+  public SimpleHttpResponse post(String uri, Map<String, String> postParams, File file) throws ClientProtocolException,
+          IOException {
+    return update(uri, postParams, "POST", file);
+  }
 
-		public SimpleHttpResponse put(String uri, Map<String, String> postParams) throws ClientProtocolException,
-										IOException {
-				return update(uri, postParams, "PUT");
-		}
+  public SimpleHttpResponse put(String uri, Map<String, String> postParams) throws ClientProtocolException,
+          IOException {
+    return update(uri, postParams, "PUT");
+  }
 
-		public SimpleHttpResponse put(String uri, Map<String, String> postParams, File file) throws ClientProtocolException,
-										IOException {
-				return update(uri, postParams, "PUT", file);
-		}
+  public SimpleHttpResponse put(String uri, Map<String, String> postParams, File file) throws ClientProtocolException,
+          IOException {
+    return update(uri, postParams, "PUT", file);
+  }
 
-		public SimpleHttpResponse update(String uri, Map<String, String> postParams, String httpMethod) throws ClientProtocolException,
-										IOException {
-				return update(uri, postParams, httpMethod, null);
-		}
+  public SimpleHttpResponse update(String uri, Map<String, String> postParams, String httpMethod) throws ClientProtocolException,
+          IOException {
+    return update(uri, postParams, httpMethod, null);
+  }
 
-		public SimpleHttpResponse update(String uri, Map<String, String> postParams, String httpMethod, File file) throws ClientProtocolException,
-										IOException {
-				HttpEntityEnclosingRequestBase req = null;
-				if (httpMethod.equals("POST")) {
+  public SimpleHttpResponse update(String uri, Map<String, String> postParams, String httpMethod, File file) throws ClientProtocolException,
+          IOException {
+    HttpEntityEnclosingRequestBase req = null;
+    if (httpMethod.equals("POST")) {
 
-						req = new HttpPost(uri);
-						setHeaders(req);
-				} else {
+      req = new HttpPost(uri);
+      setHeaders(req);
+    } else {
 
-						req = new HttpPut(uri);
-				}
-				HttpEntity entity = null;
-				if (file != null && file.exists()) {
-						MultipartEntity mpEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-						ContentBody cbFile = new FileBody(file, "application/octet-stream");
-						mpEntity.addPart("file", cbFile);
-						entity = mpEntity;
-						FormBodyPart fb = null;
-						for (Map.Entry<String, String> param : postParams.entrySet()) {
+      req = new HttpPut(uri);
+    }
+    HttpEntity entity = null;
+    if (file != null && file.exists()) {
+      MultipartEntity mpEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+      ContentBody cbFile = new FileBody(file, "application/octet-stream");
+      mpEntity.addPart("file", cbFile);
+      entity = mpEntity;
+      FormBodyPart fb = null;
+      for (Map.Entry<String, String> param : postParams.entrySet()) {
 
-								mpEntity.addPart(param.getKey(), new StringBody(param.getValue(), "text/plain", Charset.forName(DefaultPostEncoding)));
+        mpEntity.addPart(param.getKey(), new StringBody(param.getValue(), "text/plain", Charset.forName(DefaultPostEncoding)));
 
-						}
-				} else {
-						List<NameValuePair> paramsList = new ArrayList<NameValuePair>();
-						for (Map.Entry<String, String> param : postParams.entrySet()) {
-								paramsList.add(new BasicNameValuePair(param.getKey(), param.getValue()));
-						}
-						entity = new UrlEncodedFormEntity(paramsList, DefaultPostEncoding);
-				}
-				req.setEntity(entity);
-				return new SimpleHttpResponse(client.execute(req));
-		}
+      }
+    } else {
+      List<NameValuePair> paramsList = new ArrayList<NameValuePair>();
+      for (Map.Entry<String, String> param : postParams.entrySet()) {
+        paramsList.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+      }
+      entity = new UrlEncodedFormEntity(paramsList, DefaultPostEncoding);
+    }
+    req.setEntity(entity);
+    return new SimpleHttpResponse(client.execute(req));
+  }
 
-		public SimpleHttpResponse delete(String uri) throws ClientProtocolException, IOException {
-				HttpDelete del = new HttpDelete(uri);
-				//del.setHeader("X-OfficeDrop-Replica", Hostname);
-				setHeaders(del);
-				return new SimpleHttpResponse(client.execute(del));
-		}
+  public SimpleHttpResponse delete(String uri) throws ClientProtocolException, IOException {
+    HttpDelete del = new HttpDelete(uri);
+    //del.setHeader("X-OfficeDrop-Replica", Hostname);
+    setHeaders(del);
+    return new SimpleHttpResponse(client.execute(del));
+  }
 
-		public SimpleHttpResponse delete(String uri, Object... params) throws ClientProtocolException, IOException {
-				return delete(formatURI(uri, params));
-		}
+  public SimpleHttpResponse delete(String uri, Object... params) throws ClientProtocolException, IOException {
+    return delete(formatURI(uri, params));
+  }
 
-		protected static String formatURI(String uri, Object... params) {
-				if (params.length > 0) {
-						String[] encodedParams = new String[params.length];
-						for (int i = 0; i < params.length; i++) {
-								encodedParams[i] = uriEncode(params[i].toString());
-						}
-						return MessageFormatter.arrayFormat(uri, encodedParams).getMessage();
-				}
-				return uri;
-		}
+  protected static String formatURI(String uri, Object... params) {
+    if (params.length > 0) {
+      String[] encodedParams = new String[params.length];
+      for (int i = 0; i < params.length; i++) {
+        encodedParams[i] = uriEncode(params[i].toString());
+      }
+      return MessageFormatter.arrayFormat(uri, encodedParams).getMessage();
+    }
+    return uri;
+  }
 
-		@SuppressWarnings("deprecation")
-		protected static String uriEncode(String value) {
-				try {
-						return URLEncoder.encode(value, DefaultURIEncoding);
-				} catch (UnsupportedEncodingException e) {
-						return URLEncoder.encode(value);
-				}
-		}
+  @SuppressWarnings("deprecation")
+  protected static String uriEncode(String value) {
+    try {
+      return URLEncoder.encode(value, DefaultURIEncoding);
+    } catch (UnsupportedEncodingException e) {
+      return URLEncoder.encode(value);
+    }
+  }
 
-		private void setHeaders(HttpRequestBase req) {
-				Iterator it = commonHeaders.entrySet().iterator();
-				while (it.hasNext()) {
-						Map.Entry pairs = (Map.Entry) it.next();
+  private void setHeaders(HttpRequestBase req) {
+    Iterator it = commonHeaders.entrySet().iterator();
+    while (it.hasNext()) {
+      Map.Entry pairs = (Map.Entry) it.next();
 
-						req.setHeader(pairs.getKey().toString(), pairs.getKey().toString());
-						//"X-OfficeDrop-Replica"
-				}
-		}
+      req.setHeader(pairs.getKey().toString(), pairs.getKey().toString());
+      //"X-OfficeDrop-Replica"
+    }
+  }
 }

@@ -6,11 +6,11 @@ import org.apache.log4j.Logger
 
 
 object FileEntry{
-  
+
   def apply(filepath: String, mountPoint: String):FileEntry = {
     val fe = new FileEntry
     fe.file = new File(fixedPath(new File(filepath).getAbsolutePath))
-				
+
     fe.filename = FilenameUtils.getName(filepath)
     fe.size = fe.file.length
     fe.isDirectory = fe.file.isDirectory
@@ -18,24 +18,24 @@ object FileEntry{
     fe.filepath = fe.file.getAbsolutePath
     fe.mountPoint = mountPoint.toLowerCase
     fe.normalized
-    
+
     if (!fe.file.exists) return null
     fe
   }
 
-		def relativePath = (_:String).replace((_:String), "").toLowerCase
-		def	generateFKey = DigestUtils.md5Hex(_:String)
+  def relativePath = (_:String).replace((_:String), "").toLowerCase
+  def	generateFKey = DigestUtils.md5Hex(_:String)
   def	fkeyForRelativePath(path:String, mountPath:String) = generateFKey(relativePath(path,mountPath))
-		def fixedPath(path: String): String = {
+  def fixedPath(path: String): String = {
     if (path == null || path == "") return "/"
-    
-				return FilenameUtils.normalize(path.split("/").filter(_ != "").mkString("/","/",""))
+
+    return FilenameUtils.normalize(path.split("/").filter(_ != "").mkString("/","/",""))
   }
 }
 
 class FileEntry {
   val log = Logger.getLogger(classOf[FileEntry])
-  
+
   var id: Long = _
   var fkey: String = _
   var filename: String = _
@@ -49,30 +49,30 @@ class FileEntry {
   var serverPath: String = _
   var mountPoint: String = _
   var deleted = false
-  
+
   def normalized = {
     if (serverPath == null && file != null && file.exists){
       serverPath = file.getAbsolutePath.toLowerCase.replace(mountPoint, "") 
       parentPath = file.getParent.toLowerCase.replace(mountPoint, "") 
     }
-    
+
     serverPath = FileEntry.fixedPath(serverPath).toLowerCase
     parentPath = FileEntry.fixedPath(parentPath).toLowerCase
     if (filepath == null && file == null){
-						file = new File(FileEntry.fixedPath(mountPoint+serverPath)).getAbsoluteFile
-						filepath = file.getAbsolutePath
-				}
-				if (localModifiedTime != 0 && localModifiedTime.toString.length == 13) localModifiedTime =  localModifiedTime/ 1000
-						
+      file = new File(FileEntry.fixedPath(mountPoint+serverPath)).getAbsoluteFile
+      filepath = file.getAbsolutePath
+    }
+    if (localModifiedTime != 0 && localModifiedTime.toString.length == 13) localModifiedTime =  localModifiedTime/ 1000
+
     if (fkey == null) fkey=FileEntry.generateFKey(serverPath)
-      
+
   }
-  
+
   def exists = (filepath != null) && (file != null) && (file.exists)
-  
-		def	isEquals(that:FileEntry) = 
-				(that != null && this.size == that.size && this.localModifiedTime == that.localModifiedTime && this.serverPath == that.serverPath )		
-		
+
+  def	isEquals(that:FileEntry) = 
+    (that != null && this.size == that.size && this.localModifiedTime == that.localModifiedTime && this.serverPath == that.serverPath )		
+
 
   override def toString = "[%s] %s %s".format(fkey,  if (isDirectory) "D" else "F", serverPath)
   def toStringDebug = "[%s] %s %s exists: %s size: %s time: %s csum: %s".format(fkey,  if (isDirectory) "D" else "F", serverPath,exists, size,localModifiedTime, csum)

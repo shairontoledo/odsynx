@@ -19,7 +19,7 @@ trait EntriesTransport {
   def create(fe:FileEntry):RemoteChanges
   def delete(fe:FileEntry):RemoteChanges
   def checkRevision(revision:String = null):RemoteChanges
-  def	authenticate:Tuple2[Boolean,Any]
-  def	signup:Tuple2[Boolean,Any]
+  def authenticate:Tuple2[Boolean,Any]
+  def signup:Tuple2[Boolean,Any]
   def setCredentials(server:URI, username:String, password:String, email:String)
 }

@@ -104,14 +104,6 @@ It will list synced files matched with "invoice 2012"
      [4141532071a4c6939488d6d5a60d7684] F /documents/2012/invoice 22 - 2012.pdf
      [8737e439620f57f64f3eed4684569992] F /documents/2012/invoice 23 - 2012.pdf
      
-
-#Synchronous mode
-
-    odx mount
-
-It will listen and apply changes locally and remotely.
-
-
 #Help
 
     odx help

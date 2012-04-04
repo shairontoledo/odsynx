@@ -18,7 +18,7 @@ Set your username, password and email
     odx set auth.password mypassword33
     odx set auth.email myemail33@1email.com
     
-By default odx uses `https://www.officedropdev.com` if you want use other server set it by
+By default odx uses `https://www.officedrop.com` if you want use other server set it by
 
     odx set remote.server https://yourserver.com
     
@@ -105,7 +105,14 @@ It will list synced files matched with "invoice 2012"
      [8737e439620f57f64f3eed4684569992] F /documents/2012/invoice 23 - 2012.pdf
      
 
-##help
+#Synchronous mode
+
+    odx mount
+
+It will listen and apply changes locally and remotely.
+
+
+#Help
 
     odx help
     
@@ -121,11 +128,13 @@ Print
         pull                Get current revision from server and apply it locally.
         push                Push all local changes to remote server.
         push  <dir>         Push changes from a specific directory to remote server.
+        share <file|dir>    Share a file already pushed.
+        search <keywords>   Search all documents, limited by 200.
         sync                Sync, pull and push command, it also cache current revision.
         mount               Start sync as daemon. It will listen remote and local change and sync the system when needed.
 
 
-##Advanced user
+#Advanced user
 
 You can edit setting on `.odx/config` 
 
@@ -136,7 +145,7 @@ You can edit setting on `.odx/config`
 
     [remote]
     folder = /foo
-    server = https://www.officedropdev.com
+    server = https://www.officedrop.com
 
     [log]
     tty = false

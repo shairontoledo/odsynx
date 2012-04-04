@@ -75,11 +75,13 @@ object Synchronizer {
         case FileEntryStatus.New => {
             val resp = if (fileEntry.isDirectory) create(fileEntry) else upload(fileEntry)
             fileEntry.csum = resp.lastChange.csum 
+            fileEntry.id = resp.lastChange.id
             save(fileEntry)
           }
         case FileEntryStatus.Changed => {
             val resp = if (fileEntry.isDirectory) create(fileEntry) else upload(fileEntry)
             fileEntry.csum = resp.lastChange.csum 
+            fileEntry.id = resp.lastChange.id
             save(fileEntry)
           }
         case FileEntryStatus.Removed => {										

@@ -19,6 +19,8 @@ object Main {
     case Command.SignUp() => signup
     case Command.Pull() => pull
     case Command.Push(file) => push(file)
+    case Command.Share(file) => share(file)
+    case Command.Search(keyword) => search(keyword)
     case Command.Status() => status
     case Command.Sync() => sync
     case Command.Mount() => mount
@@ -51,6 +53,33 @@ object Main {
     val fileToSync = if (file == null) currentDirAsFile else new File(file)
     Volume.push(fileToSync)
   }
+  
+  def	share(file:String):Any = {
+    initUserEnvironment(startWorkers = false)
+    val fileToSync = if (file == null) currentDirAsFile else new File(file)
+    val userFile = FileEntry(fileToSync.getAbsolutePath, Volume.mountPoint)
+    var dbEntry:FileEntry = null
+    if (userFile !=null){
+      dbEntry = CurrentDatabase.retrive(userFile.fkey)      
+    }else{
+      Command.abort("File or directory `%s` not found ".format(file), 6)
+    }
+    //true File not synced
+    if (dbEntry == null){
+      Volume.push(fileToSync)
+      share(file)
+    }else{
+      CurrentTransport.share(dbEntry)
+    }
+    
+  }
+  def	search(keywords:String):Any = {
+    initUserEnvironment(startWorkers = false)
+    //true File not synced
+    
+      Volume.search(keywords)
+    
+  }
 
   def	status = {
     initUserEnvironment(startWorkers = false)
@@ -58,7 +87,7 @@ object Main {
   }
 
   def	sync = {
-    initUserEnvironment(false)
+    initUserEnvironment(startWorkers = false)
     Volume.syncAll
   }
 

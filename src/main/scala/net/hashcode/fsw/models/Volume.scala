@@ -64,6 +64,7 @@ object Volume{
   def fetchFiles(path:String, mountPoint: String, list:ListBuffer[FileEntry] ){
 
     for (file <- new File(path).listFiles if !file.isHidden){
+      
       list += FileEntry(file.getAbsolutePath, mountPoint)
       if (file.isDirectory)
         fetchFiles(file.getAbsolutePath, mountPoint, list)
@@ -79,7 +80,8 @@ object Volume{
 
   def	printStatus(file:File) = {
     val all=new HashSet[String]
-    entries.foreach(e => all += e.filepath)
+    entries.foreach(e => if (e != null) all += e.filepath)
+    
     CurrentDatabase fetchAll( e=> if (!all.contains(e.filepath)) all += e.filepath )
     all.toList.sortBy(_.toString).foreach(e => log.info( status(e) )  )
   } 
@@ -105,6 +107,11 @@ object Volume{
   def push(fe:FileEntry):Unit = {
     log info "Pushing "+fe
     Synchronizer sync(fe.file,mountPoint)
+  }
+  
+  def search(keywords: String):Unit = {
+    log info "Searching for  "+keywords
+    CurrentTransport.search(keywords).foreach( id => log info(CurrentDatabase.findById(id)) )
   }
 
   def	pull = {

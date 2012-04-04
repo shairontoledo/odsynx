@@ -52,6 +52,7 @@ public class Http {
   public Http() {
     this.client = new DefaultHttpClient(new ThreadSafeClientConnManager(SchemeRegistryFactory.createDefault()));
     commonHeaders.put("X-OfficeDrop-Replica", "odx-replica-" + Hostname);
+    commonHeaders.put("User-Agent", "odsynx 1.1");
 
     //HttpHost proxy = new HttpHost("127.0.0.1", 8888, "http");
     //this.client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
@@ -161,7 +162,7 @@ public class Http {
   }
 
   @SuppressWarnings("deprecation")
-  protected static String uriEncode(String value) {
+  public static String uriEncode(String value) {
     try {
       return URLEncoder.encode(value, DefaultURIEncoding);
     } catch (UnsupportedEncodingException e) {

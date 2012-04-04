@@ -36,6 +36,7 @@ class RemoteChanges(responseBody:String){
 
   def mapToFileEntry(map:Map[String,Any]) = {
     var fe = new FileEntry
+    fe.id = map.getOrElse("id","0").toString.toFloat.toLong
     fe.filename = map.getOrElse("filename","").asInstanceOf[String]
     fe.fkey = map.getOrElse("fkey","").asInstanceOf[String]
     fe.csum = map.getOrElse("csum","").asInstanceOf[String]

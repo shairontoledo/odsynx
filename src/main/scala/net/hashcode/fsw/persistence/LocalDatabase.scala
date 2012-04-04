@@ -7,6 +7,7 @@ trait LocalDatabase {
 
   def retrive(fkey: String): FileEntry
   def find(serverPath: String): FileEntry
+  def findById(id: String): FileEntry
   def findChildren(parentPath: String, op:FileEntry => Unit)
   def save(fileEntry: FileEntry)
   def save(fileEntries: List[FileEntry])

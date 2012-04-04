@@ -30,6 +30,7 @@ object LuceneAsDatabase extends LocalDatabase{
   }
 
   override def find(serverPath: String) = findBy("server_path", serverPath)
+  override def findById(id: String) = findBy("id", id)
 
   def findBy(field:String, fieldValue:String): FileEntry = {
     log.debug("Finding by %s = %s".format(field, fieldValue))
@@ -115,6 +116,7 @@ object LuceneAsDatabase extends LocalDatabase{
 
   def luceneDocument(fe: FileEntry): Document = {
     val doc = new Document
+    doc.add(new Field("id", fe.id+"", Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
 
     doc.add(new Field("server_path", fe.serverPath, Store.YES, Field.Index.NOT_ANALYZED_NO_NORMS));
     if (fe.parentPath != null)
@@ -158,6 +160,7 @@ object LuceneAsDatabase extends LocalDatabase{
 
   def asFileEntry(doc: Document): FileEntry ={
     val fe = new FileEntry
+    fe.id = doc.get("id").toLong
     fe.serverPath = doc.get("server_path")
     fe.parentPath = doc.get("parent_path")
     fe.filename = doc.get("filename")

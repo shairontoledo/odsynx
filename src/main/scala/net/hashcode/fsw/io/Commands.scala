@@ -22,6 +22,8 @@ object Command {
         pull                Get current revision from server and apply it locally.
         push                Push all local changes to remote server.
         push  <dir>         Push changes from a specific directory to remote server.
+        share <file|dir>    Share a file already pushed.
+        search <keywords>   Search all documents, limited by 200.
         sync                Sync, pull and push command, it also cache current revision.
         mount               Start sync as daemon. It will listen remote and local change and sync the system when needed.
     """)
@@ -44,6 +46,18 @@ object Command {
           abort("Missing argument file for command `ignore', usage: odx ignore path/to/file.txt")
           Unknown()
         }
+      case "share" => if (args.length > 1) {
+          Share(args(1))
+        }else{
+          abort("Missing argument file or directory for command `share', usage: odx share path/to/file.txt")
+          Unknown()
+        }
+      case "search" => if (args.length > 1) {
+          Search(args(1))
+        }else{
+          abort("Missing argument keywords for command `search', usage: odx search \"documents 2012\"")
+          Unknown()
+        }
       case "status" => Status()
       case "sync"		=> Sync()
       case "mount"		=> Mount()
@@ -63,6 +77,8 @@ object Command {
   case class SignUp() extends Command
   case class Pull() extends Command
   case class Push(file:String) extends Command
+  case class Share(file:String) extends Command
+  case class Search(keywords:String) extends Command
   case class Ignore(file:String) extends Command
   case class Status() extends Command
   case class Sync() extends Command

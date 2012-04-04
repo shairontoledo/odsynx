@@ -18,6 +18,9 @@ import org.codehaus.jackson.node.ArrayNode
 import org.villane.shttpc.Http
 import org.villane.shttpc._
 import scala.util.parsing.json._
+import scala.collection.JavaConversions._
+import scala.collection.mutable.Iterable
+
 
 object SHTTPTransport extends EntriesTransport{
   val log = Logger.getLogger(classOf[EntriesTransport])
@@ -68,6 +71,50 @@ object SHTTPTransport extends EntriesTransport{
 
   }
 
+  override def share(fileEntry: FileEntry):Boolean = {
+    //"share[visibility]=public&share[shared_id]=1161&share[shared_type]=Document&share[recipients]=someone@mail.com" 
+    //https://www.officedrop.com/ze/api/shares.xml"
+    val feType = if (fileEntry.isDirectory) "Folder" else "Document"
+    val data = Map( 
+      "share[visibility]" -> "public",
+      "share[shared_id]" -> fileEntry.id.toString,
+      "share[shared_type]" -> feType,
+      "share[no_email]" -> "1"
+    
+    )
+    if (http.post(basePathFor("/shares.json"),data).statusCode == 200){
+      val req = http.get(basePathFor("/documents/%s.json".format(fileEntry.id)))
+      log.info("Shared link -> %s".format(req.asJackson.get("public_share").get("url")))
+      return true
+    }else{
+      log.error("Error sharing file")
+      return false
+    }
+    
+  }
+  
+  override def search(keywords: String):List[String] = {
+    
+    //val data = Map( "q" -> keywords, "per_page" -> "20" )
+    val params = "q=%s&per_page=200".format(Http.uriEncode(keywords))
+    val encodedUrl= "/documents.json?%s".format(params)
+    val req = http.get(basePathFor(encodedUrl) )
+    if (req.statusCode == 200){
+      try{
+      return req.asJackson.get("results").map(_.get("id").toString).asInstanceOf[List[String]]
+      }catch{
+        case npe: NullPointerException => {
+            log.info("No files found")
+            return List.empty
+        }
+      }
+    }else{
+      log.error("Error searching ...")
+      return List.empty
+    }
+  }
+  
+  
   override def	authenticate = {
 
     log.info("[%s] Authenticating username: %s ".format(server,username))
@@ -115,7 +162,7 @@ object SHTTPTransport extends EntriesTransport{
     log.info("[%s] Checking revision %s".format(server,revision))
     val resp = if (revision == null){
       http.get(basePathFor("/revisions/checkout"))
-
+      
     }else{
       http.get(basePathFor("/revisions/%s/changes_since".format(revision)))
     }
